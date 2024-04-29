@@ -1,258 +1,133 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.0;
+pragma solidity 0.8.18;
 
+import "./Term.sol";
+import "./Layer.sol";
 
-contract Learnea{
-    // address[] terms_address_list;
-    // address[] layers_address_list;
+contract Learnea {
+    uint256 public userCount = 0;
+    uint256 public termCount = 0;
+    uint256 public layerCount = 0;
 
-    //micro layers
-    //macro layers
-
-
-    struct User{
+    struct User {
         uint256 id;
         address wallet;
         string name;
         string title;
         string details;
-        address[] terms; //new contract address
-        address[] layers;
-        
-        // term and layers will be seperate
     }
 
-    mapping ( address => User ) public users;
-
-    enum TermsType {
-        STANDALONE
+    struct CreatedTerm {
+        uint256 id;
+        address creator;
+        address termAddress;
     }
 
-    //terms type
-    //1. if no terms attached anywhere, it's standalone
-    //2. 
-    struct Term {
-        string title;
-        string details;
-        uint256[] terms_around; // id / contract address of terms
-        uint256[] perspectives; //id / contract address - explaining from different perspective
-        address[] coterms; //terms that are not up or down but related
-        address[] microterms; //terms that can be studied under a terms
-        address[] macroterms; //a term can be studied under many terms, those are macro
-        mapping (address => address) tangledterms; // first address is the new tangled term, second address is the term that tangled with this one.
-        address[] philosophy_terms;
+    struct CreatedLayer {
+        uint256 id;
+        address creator;
+        address layerAddress;
     }
 
-    mapping ( address => Term ) public terms; // term address is the key
+    mapping (address => User) public users;
+    mapping (uint256 => CreatedTerm) public terms;
+    mapping (uint256 => CreatedLayer) public layers;
 
-    struct Layer {
-        string title;
-        string details;
-        uint256[] terms; // id / contract address of terms
-        address creator; 
-    }
+    constructor() {}
 
-    mapping ( address => Layer ) public layers; // layer address is the key
-
-
-
-    constructor(){}
-
-    //methods
-    //create user by verifying a signed message
-      function createUser(
+    function createUser(
         string memory _name,
         string memory _title,
         string memory _details
     ) public {
-        // Verify the signer
         require(users[msg.sender].wallet == address(0), "User already exists");
 
-        // Create a new user
         User memory newUser = User({
             id: userCount,
             wallet: msg.sender,
             name: _name,
             title: _title,
-            details: _details,
-            terms: new address[](0),
-            layers: new address[](0)
+            details: _details
         });
 
-        // Add the new user to the mapping
         users[msg.sender] = newUser;
-
-        // Increment the user count
         userCount++;
     }
 
-    // Method to create a term
     function createTerm(
         string memory _title,
         string memory _details
     ) public {
-        require(bytes(_title).length <= 1000, "Title must be under 1000 characters");
-        require(bytes(_details).length <= 1000, "Details must be under 1000 characters");
-
-        Term memory newTerm = Term({
-            title: _title,
-            details: _details,
-            termsAround: new address[](0),
-            perspectives: new address[](0),
-            coterms: new address[](0),
-            microterms: new address[](0),
-            macroterms: new address[](0),
-            tangledTerms: new mapping(address => address),
-            philosophyTerms: new address[](0)
+        Term newTerm = new Term(_title, _details);
+        terms[termCount] = CreatedTerm({
+            id: termCount,
+            creator: msg.sender,
+            termAddress: address(newTerm)
         });
-
-        // Deploy a new Term contract instance and set the owner to msg.sender
-        // Note: This requires the Term contract to be deployed from the Learnea contract
-        // For simplicity, we're directly adding the term to the mapping here
-        terms[msg.sender] = newTerm;
+        termCount++;
     }
 
-    // Method to create a layer
     function createLayer(
         string memory _title,
         string memory _details
     ) public {
-        require(bytes(_title).length <= 1000, "Title must be under 1000 characters");
-        require(bytes(_details).length <= 1000, "Details must be under 1000 characters");
-
-        Layer memory newLayer = Layer({
-            title: _title,
-            details: _details,
-            terms: new address[](0),
-            creator: msg.sender
+        Layer newLayer = new Layer(_title, _details, msg.sender);
+        layers[layerCount] = CreatedLayer({
+            id: layerCount,
+            creator: msg.sender,
+            layerAddress: address(newLayer)
         });
-
-        // Similar to the Term creation, we're directly adding the layer to the mapping here
-        layers[msg.sender] = newLayer;
+        layerCount++;
     }
 
-     function getUserTerms(address _userAddress) public view returns (address[] memory) {
-        return users[_userAddress].terms;
+    function getUser(address _userAddress) public view returns (User memory) {
+        return users[_userAddress];
     }
 
-    function getUserLayers(address _userAddress) public view returns (address[] memory) {
-        return users[_userAddress].layers;
-    }
-}
-
-
-contract Term{
-    //TODO in method to update make sure title is under 1000 character
-    // title[title.length-1] is the current. Others are history
-    string[] title; 
-
-    //TODO in method to update make sure title is under 1000 character
-    // details[details.length-1] is the current. Others are history
-    string[] details;
-    address[] public termsAround; // Addresses of terms around
-    address[] public perspectives; // Addresses of perspectives
-    address[] public coterms; // Addresses of coterms
-    address[] public microterms; // Addresses of microterms
-    address[] public macroterms; // Addresses of macroterms
-    mapping (address => address) public tangledTerms; // Mapping of tangled terms
-    address[] public philosophyTerms; // Addresses of philosophy terms
-
-    constructor(address _owner, string memory _title, string memory _details) {
-        owner = _owner;
-        title = _title;
-        details = _details;
+    function getTerm(uint256 _termId) public view returns (CreatedTerm memory) {
+        return terms[_termId];
     }
 
-    function updateTitle(string memory _newTitle) public {
-        require(msg.sender == owner, "Only the owner can update the title");
-        title = _newTitle;
+    function getLayer(uint256 _layerId) public view returns (CreatedLayer memory) {
+        return layers[_layerId];
     }
 
-    function updateDetails(string memory _newDetails) public {
-        require(msg.sender == owner, "Only the owner can update the details");
-        details = _newDetails;
+   
+
+    function getAllTerms() public view returns (CreatedTerm[] memory) {
+        CreatedTerm[] memory allTerms = new CreatedTerm[](termCount);
+        for (uint256 i = 0; i < termCount; i++) {
+            allTerms[i] = terms[i];
+        }
+        return allTerms;
     }
 
-    function addTermAround(address _termAddress) public {
-        termsAround.push(_termAddress);
-    }
-
-    function addPerspective(address _perspectiveAddress) public {
-        perspectives.push(_perspectiveAddress);
-    }
-
-    function addCoterm(address _cotermAddress) public {
-        coterms.push(_cotermAddress);
-    }
-
-    function addMicroterm(address _microtermAddress) public {
-        microterms.push(_microtermAddress);
-    }
-
-    function addMacroterm(address _macrotermAddress) public {
-        macroterms.push(_macrotermAddress);
-    }
-
-    function addTangledTerm(address _tangledTermAddress) public {
-        tangledTerms[_tangledTermAddress] = address(0); // Placeholder for the tangled term's address
-    }
-
-    function addPhilosophyTerm(address _philosophyTermAddress) public {
-        philosophyTerms.push(_philosophyTermAddress);
-    }
-
-}
-
-contract Layer {
-    // Some terms can be chosen under a layer. All microterms under it will be in that layer.
-
-        //TODO in method to update make sure title is under 1000 character
-    // title[title.length-1] is the current. Others are history
-    string[] title; 
-
-    //TODO in method to update make sure title is under 1000 character
-    // details[details.length-1] is the current. Others are history
-    string[] details;
-
-    address public owner;
-    address[] public terms; // Terms that belong to this layer
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    function updateTitle(string memory _newTitle) public {
-        require(msg.sender == owner, "Only the owner can update the title");
-        require(bytes(_newTitle).length <= 1000, "Title must be under 1000 characters");
-        title.push(_newTitle);
-    }
-
-    function updateDetails(string memory _newDetails) public {
-        require(msg.sender == owner, "Only the owner can update the details");
-        require(bytes(_newDetails).length <= 1000, "Details must be under 1000 characters");
-        details.push(_newDetails);
-    }
-
-    function addTerm(address _termAddress) public {
-        terms.push(_termAddress);
+    function getAllLayers() public view returns (CreatedLayer[] memory) {
+        CreatedLayer[] memory allLayers = new CreatedLayer[](layerCount);
+        for (uint256 i = 0; i < layerCount; i++) {
+            allLayers[i] = layers[i];
+        }
+        return allLayers;
     }
 }
 
-//Learning thread. Each thread is a learning process. Threads can be anything that takes a thread on your brain
-//There is only a few thread our brain can take all the time. 
-//Thread is personal
-contract Thread{
-    address owner;
 
-}
 
-//Threads and projects both will have activity and activity management will be designed here
-contract activity{
+    // struct Term {
+    //     string title;
+    //     string details;
+    //     address[] perspectives;
+    //     address[] coterms;
+    //     address[] microterms;
+    //     address[] macroterms;
+    //     address[] philosophy_terms;
+    // }
 
-}
+    // struct Layer {
+    //     string title;
+    //     string details;
+    //     address[] terms;
+    //     address creator;
+    // }
 
-//Project is about doing something
-//Project will have goals, teams(with extra title), details, founder, co founder
-contract Project{
-    
-}`
+   
