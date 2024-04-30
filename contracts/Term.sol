@@ -102,7 +102,7 @@ function updateDetails(string memory _details) public returns(string memory) {
 
     function addLearningCurves(string memory _curve) public returns(string[] memory){
         learningCurves.push(_curve);
-        lastUpdatedAt = block.timestamp; // Update lastUpdatedAt
+            lastUpdatedAt = block.timestamp; // Update lastUpdatedAt
         return learningCurves;
     }
 

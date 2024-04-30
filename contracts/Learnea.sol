@@ -6,6 +6,7 @@ import "./Term.sol";
 
 contract Learnea {
     address owner;
+    address[] standaloneTerms;
     uint256 public userCount = 0;
     uint256 public termCount = 0;
     uint256 public layerCount = 0;
@@ -55,8 +56,8 @@ contract Learnea {
     }
 
     mapping (address => User) public users;
-    mapping (uint256 => CreatedTerm) public terms;
-    mapping (uint256 => CreatedLayer) public layers;
+    mapping (address => CreatedTerm) public terms;
+    mapping (address => CreatedLayer) public layers;
     mapping (address => CreatedPath) public userCreatedPathList; 
     mapping (address => LearningPath) public userPathList; //user address to how many path address it's doing. from that path address user can bring progress, 
 
@@ -120,16 +121,23 @@ contract Learnea {
         string memory _details,
         uint256  _termType,
         address _derivedFrom
-    ) public {
+    ) public returns(address){
         Term newTerm = new Term(_title, _details, _termType, _derivedFrom, address(0));
-        terms[termCount] = CreatedTerm({
+        terms[address(newTerm)] = CreatedTerm({
             id: termCount,
             creator: msg.sender,
             termAddress: address(newTerm),
             termType: _termType, //fix enum issue
             derivedFrom: _derivedFrom
         });
+
+        if(_termType == 0){
+            standaloneTerms.push(address(newTerm));
+        }
+
         termCount++;
+
+        return address(newTerm);
     }
 
     // function createLayer(
@@ -149,8 +157,8 @@ contract Learnea {
         return users[_userAddress];
     }
 
-    function getTerm(uint256 _termId) public view returns (CreatedTerm memory) {
-        return terms[_termId];
+    function getTerm(address _address) public view returns (CreatedTerm memory) {
+        return terms[_address];
     }
 
     // function getLayer(uint256 _layerId) public view returns (CreatedLayer memory) {
@@ -159,13 +167,13 @@ contract Learnea {
 
    
 
-    function getAllTerms() public view returns (CreatedTerm[] memory) {
-        CreatedTerm[] memory allTerms = new CreatedTerm[](termCount);
-        for (uint256 i = 0; i < termCount; i++) {
-            allTerms[i] = terms[i];
-        }
-        return allTerms;
-    }
+    // function getAllTerms() public view returns (CreatedTerm[] memory) {
+    //     CreatedTerm[] memory allTerms = new CreatedTerm[](termCount);
+    //     for (uint256 i = 0; i < termCount; i++) {
+    //         allTerms[i] = terms[i];
+    //     }
+    //     return allTerms;
+    // }
 
     // function getAllLayers() public view returns (CreatedLayer[] memory) {
     //     CreatedLayer[] memory allLayers = new CreatedLayer[](layerCount);
