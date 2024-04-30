@@ -2,8 +2,7 @@
 pragma solidity 0.8.18;
 
 import "./Term.sol";
-import "./Layer.sol";
-// import "./Path.sol";
+//import "./Layer.sol";
 
 contract Learnea {
     address owner;
@@ -21,15 +20,6 @@ contract Learnea {
         
     }
 
-    enum TermType {
-        STANDALONE,
-        PERSPECTIVE,
-        CO,
-        MICRO,
-        MACRO,
-        PHILOSOPHY,
-        SCIENTIFIC
-    }
 
     struct CreatedTerm {
         uint256 id;
@@ -118,12 +108,12 @@ contract Learnea {
     // }
 
     // and add it to users list
-    function addUserToPathList(address _pathAddress) public{
+    // function addUserToPathList(address _pathAddress) public{
       
-    }
+    // }
 
     //TODO
-    function addPathToUserPathList()public{}
+    // function addPathToUserPathList()public{}
 
     function createTerm(
         string memory _title,
@@ -142,18 +132,18 @@ contract Learnea {
         termCount++;
     }
 
-    function createLayer(
-        string memory _title,
-        string memory _details
-    ) public {
-        Layer newLayer = new Layer(_title, _details,  address(0));
-        layers[layerCount] = CreatedLayer({
-            id: layerCount,
-            creator: msg.sender,
-            layerAddress: address(newLayer)
-        });
-        layerCount++;
-    }
+    // function createLayer(
+    //     string memory _title,
+    //     string memory _details
+    // ) public {
+    //     Layer newLayer = new Layer(_title, _details,  address(0));
+    //     layers[layerCount] = CreatedLayer({
+    //         id: layerCount,
+    //         creator: msg.sender,
+    //         layerAddress: address(newLayer)
+    //     });
+    //     layerCount++;
+    // }
 
     function getUser(address _userAddress) public view returns (User memory) {
         return users[_userAddress];
@@ -163,9 +153,9 @@ contract Learnea {
         return terms[_termId];
     }
 
-    function getLayer(uint256 _layerId) public view returns (CreatedLayer memory) {
-        return layers[_layerId];
-    }
+    // function getLayer(uint256 _layerId) public view returns (CreatedLayer memory) {
+    //     return layers[_layerId];
+    // }
 
    
 
@@ -177,32 +167,12 @@ contract Learnea {
         return allTerms;
     }
 
-    function getAllLayers() public view returns (CreatedLayer[] memory) {
-        CreatedLayer[] memory allLayers = new CreatedLayer[](layerCount);
-        for (uint256 i = 0; i < layerCount; i++) {
-            allLayers[i] = layers[i];
-        }
-        return allLayers;
-    }
+    // function getAllLayers() public view returns (CreatedLayer[] memory) {
+    //     CreatedLayer[] memory allLayers = new CreatedLayer[](layerCount);
+    //     for (uint256 i = 0; i < layerCount; i++) {
+    //         allLayers[i] = layers[i];
+    //     }
+    //     return allLayers;
+    // }
 }
-
-
-
-    // struct Term {
-    //     string title;
-    //     string details;
-    //     address[] perspectives;
-    //     address[] coterms;
-    //     address[] microterms;
-    //     address[] macroterms;
-    //     address[] philosophy_terms;
-    // }
-
-    // struct Layer {
-    //     string title;
-    //     string details;
-    //     address[] terms;
-    //     address creator;
-    // }
-
-   
+    
