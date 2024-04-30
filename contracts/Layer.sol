@@ -2,15 +2,17 @@
 pragma solidity 0.8.18;
 
 contract Layer {
+    address public LearneaContract; //learnea address
     string public title;
     string public details;
     address[] public terms;
-    address public creator;
+    address public owner;
 
-    constructor(string memory _title, string memory _details, address _creator) {
+    constructor(string memory _title, string memory _details, address _learneaContract) {
         title = _title;
         details = _details;
-        creator = _creator;
+        owner = msg.sender;
+        LearneaContract = _learneaContract;
     }
 
     function addTerm(address _term) public {
@@ -22,6 +24,6 @@ contract Layer {
     }
 
     function getCreator() public view returns (address) {
-        return creator;
+        return owner;
     }
 }
