@@ -3,7 +3,7 @@ pragma solidity 0.8.18;
 
 import "./Term.sol";
 import "./Layer.sol";
-import "./Path.sol";
+// import "./Path.sol";
 
 contract Learnea {
     address owner;
@@ -95,27 +95,27 @@ contract Learnea {
     }
 
     //TODO Create path contract
-      function createPath(
-        string memory _title, 
-        string memory _details, 
-        address _startingTerm,
-         address _endTerm, 
-         address _goalTerm 
-    ) public {
-        Path newPath = new Path(_title, _details, _startingTerm, _endTerm, _goalTerm, address(0));
+    //   function createPath(
+    //     string memory _title, 
+    //     string memory _details, 
+    //     address _startingTerm,
+    //      address _endTerm, 
+    //      address _goalTerm 
+    // ) public {
+    //     Path newPath = new Path(_title, _details, _startingTerm, _endTerm, _goalTerm, address(0));
 
-        userCreatedPathList[msg.sender] = CreatedPath({
-        id: pathCount,
-        creator: msg.sender,
-        title: _title, 
-        details: _details, 
-        startingTerm: _startingTerm, 
-        endTerm: _endTerm, 
-        goalTerm: _goalTerm,
-        pathAdress: address(newPath)
-        });
-        pathCount++;
-    }
+    //     userCreatedPathList[msg.sender] = CreatedPath({
+    //     id: pathCount,
+    //     creator: msg.sender,
+    //     title: _title, 
+    //     details: _details, 
+    //     startingTerm: _startingTerm, 
+    //     endTerm: _endTerm, 
+    //     goalTerm: _goalTerm,
+    //     pathAdress: address(newPath)
+    //     });
+    //     pathCount++;
+    // }
 
     // and add it to users list
     function addUserToPathList(address _pathAddress) public{
